@@ -44,7 +44,7 @@ def insert_snp500_symbols(symbols):
   db_user = 'sec_user'
   db_pass = 'password'
   db_name = 'securities_master'
-  con = mysql.connector.connect(host=db_host, user=db_user, psswd=db_pass, db=db_name)  
+  con = mdb.connect(db_host, db_user, db_pass, db_name)  
 
   # Create the insert strings
   column_str = "ticker, instrument, name, sector, currency, created_date, last_updated_date"
@@ -56,6 +56,7 @@ def insert_snp500_symbols(symbols):
 
   cur = con.cursor()
   cur.executemany(final_str, symbols)
+  con.commit()
 
 
 if __name__ == "__main__":
