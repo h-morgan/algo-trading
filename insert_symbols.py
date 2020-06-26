@@ -3,6 +3,7 @@ import datetime
 from math import ceil
 import bs4
 import MySQLdb as mdb
+import mysql.connector
 import requests
 
 def obtain_parse_wiki_snp500():
@@ -17,7 +18,7 @@ def obtain_parse_wiki_snp500():
 
   # Use requests and bs4 to download the list of S&P500 Companies and obtain symbol table
   response = requests.get("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
-  soup = bs4.BeautifulSoup(response.text)
+  soup = bs4.BeautifulSoup(response.text, features='lxml')
   
   # Select the first table (using CSS selector syntax) and ignore the header row 
   symbols_list = soup.select('table')[0].select('tr')[1:]
@@ -29,17 +30,36 @@ def obtain_parse_wiki_snp500():
     ticker = tds[0].select('a')[0].text
     name = tds[1].select('a')[0].text
     sector = tds[3].text
-    symbols.append(ticker, 'stock', name, sector, 'USD', now, now)
+    symbols.append((ticker, 'stock', name, sector, 'USD', now, now))
   
   return symbols
 
 
 def insert_snp500_symbols(symbols):
   """
-  
+  Insert the S&P500 symbols info into MySQL database 
   """
-    
+  # Connect to the MySQL instance
+  db_host = 'localhost'
+  db_user = 'sec_user'
+  db_pass = 'password'
+  db_name = 'securities_master'
+  con = mysql.connector.connect(host=db_host, user=db_user, psswd=db_pass, db=db_name)  
+
+  # Create the insert strings
+  column_str = "ticker, instrument, name, sector, currency, created_date, last_updated_date"
+  insert_str = ('%s, ' * 7)[:-2]
+  final_str = "INSERT INTO symbol (%s) VALUES (%s)" % (column_str, insert_str)
+  
+  # Using the MySQL connection, carry out an INSERT INTO for every symbol
+  
+
+  cur = con.cursor()
+  cur.executemany(final_str, symbols)
+
 
 if __name__ == "__main__":
   symbols = obtain_parse_wiki_snp500()
+  insert_snp500_symbols(symbols)
+  print("%s symbols were successfully added." % len(symbols))
   
