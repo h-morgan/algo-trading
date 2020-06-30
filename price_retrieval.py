@@ -5,6 +5,7 @@ import requests
 import yfinance as yf
 from yahoofinancials import YahooFinancials
 from pandas_datareader import data as pdr
+import utils
 
 
 # Connect to the MySQL instance
@@ -24,7 +25,7 @@ def obtain_list_of_db_tickers():
   return [(d[0], d[1]) for d in data]
 
 
-def get_daily_historic_data_yahoo(ticker, start_date='2020-01-01', end_date='2020-02-01'):
+def get_daily_historic_data_yahoo(ticker, start_date='2020-01-01', end_date=datetime.date.today()):
   """
   Obtains data from Yahoo Finance and returns a list of tuples
  
@@ -34,16 +35,13 @@ def get_daily_historic_data_yahoo(ticker, start_date='2020-01-01', end_date='202
   """
 
   # Use yfinance to access all stock data and get it ready to store
-  start = datetime.datetime(2019, 1, 1)
-  end = datetime.datetime.today()
-  yf.pdr_override()
-  data = pdr.get_data_yahoo([ticker], start=start, end=end)
-  prices = []
-  for index, day in data.iterrows():
-    day_info = (index, day['Open'], day['High'], day['Low'], day['Close'], day['Volume'], day['Adj Close'])
-    print(day_info)
-    prices.append(day_info)
-  return prices
+  try:
+    prices = utils.retrieve_yahoo_data(ticker, start_date, end_date, method=1)
+    return prices
+  except:
+    prices = utils.retrieve_yahoo_data(ticker, start_date, end_date, method=2)
+    return prices
+  
 
 
 
@@ -56,7 +54,6 @@ if __name__ == "__main__":
   tickers = obtain_list_of_db_tickers()
   lentickers = len(tickers)
   for i, t in enumerate(tickers):
-    if i < 23: continue
     stock_tk = t[1]
     if '.' in stock_tk: stock_tk = stock_tk.replace('.', '-')
     print("Adding data for %s: %s out of %s" % (stock_tk, i+1, lentickers))
