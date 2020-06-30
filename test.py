@@ -5,7 +5,7 @@ import datetime
 from pandas_datareader import data as pdr
 
 way = 3
-this = 'TTEK'
+this = 'ADP'
 
 if way == 1:
   stock = yf.Ticker(this)
@@ -33,4 +33,7 @@ if way == 3:
 
   yf.pdr_override()
   data = pdr.get_data_yahoo([this], start = start, end = end)
-  print(data.head())
+  is_none = data['Open'] == 'nan'
+  #print(is_none.head())
+  nones = data[is_none]
+  print(nones)

@@ -20,6 +20,7 @@ def retrieve_yahoo_data(stock, start, end, method=1):
     for index, day in hist.iterrows():
       day_info = (index, day['Open'], day['High'], day['Low'], day['Close'], day['Volume'], day['Adj Close']) 
       prices.append(day_info)
+    return prices
   
   if method == 2:
     stock_2 = YahooFinancials(stock)
