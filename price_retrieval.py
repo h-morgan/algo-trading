@@ -25,7 +25,7 @@ def obtain_list_of_db_tickers():
   return [(d[0], d[1]) for d in data]
 
 
-def get_daily_historic_data_yahoo(ticker, start_date='2020-01-01', end_date=datetime.date.today()):
+def get_daily_historic_data_yahoo(ticker, start_date='2010-01-01', end_date=datetime.date.today()):
   """
   Obtains data from Yahoo Finance and returns a list of tuples
  
